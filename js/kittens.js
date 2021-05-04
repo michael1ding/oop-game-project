@@ -70,6 +70,23 @@ class Player extends Entity{
 
 }
 
+class Bullet extends Entity{
+    constructor(xPos) {
+        super();
+        this.x = xPos
+        this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
+        this.sprite = images['player.png'];
+
+        this.speed = 0.5;
+    }
+
+    update(timeDiff) {
+        this.y = this.y - timeDiff * this.speed;
+    }
+
+}
+
+
 
 
 
@@ -86,6 +103,7 @@ class Engine {
 
         // Setup enemies, making sure there are always three
         this.setupEnemies();
+        this.bullets =[];
 
         // Setup the <canvas> element where we will be drawing
         var canvas = document.createElement('canvas');
@@ -126,6 +144,10 @@ class Engine {
         this.enemies[enemySpot] = new Enemy(enemySpot * ENEMY_WIDTH);
     }
 
+    addBullet() {
+        this.bullets.push(new Bullet(this.player.x));
+    }
+
     // This method kicks off the game
     start() {
         this.score = 0;
@@ -138,15 +160,17 @@ class Engine {
             }
             else if (e.keyCode === RIGHT_ARROW_CODE) {
                 this.player.move(MOVE_RIGHT);
-            } else if (e.keyCode === 32) {
+            } else if (e.keyCode === 13) {
                 this.player = new Player();
-
-                // Setup enemies, making sure there are always three
                 this.enemies = [];
                 this.score = 0;
                 this.lastFrame = Date.now();
+                this.bullets = [];
                 this.gameLoop();
+            } else if (e.keyCode === 32) {
+                this.addBullet();
             }
+
         });
                 
         this.gameLoop();
@@ -172,18 +196,35 @@ class Engine {
 
         // Call update on all enemies
         this.enemies.forEach(enemy => enemy.update(timeDiff));
+        this.bullets.forEach(bullet => bullet.update(timeDiff)); // draw the bullets
 
         // Draw everything!
         this.ctx.drawImage(images['stars.png'], 0, 0); // draw the star bg
         this.enemies.forEach(enemy => enemy.render(this.ctx)); // draw the enemies
         this.player.render(this.ctx); // draw the player
-
+        
+        this.bullets.forEach(bullet => bullet.render(this.ctx)); // draw the bullets
         // Check if any enemies should die
         this.enemies.forEach((enemy, enemyIdx) => {
             if (enemy.y > GAME_HEIGHT) {
                 delete this.enemies[enemyIdx];
             }
         });
+
+        var i;
+        var j;
+        for (i = 0; i < this.enemies.length; i++) {
+            for (j = 0; j < this.bullets.length; j++) {
+                if (this.bullets[j] && this.enemies[i]){
+                    if (this.bullets[j].x == this.enemies[i].x){
+                        if (this.bullets[j].y <= this.enemies[i].y+ENEMY_HEIGHT && this.bullets[j].y+PLAYER_HEIGHT >= this.enemies[i].y){
+                            delete this.enemies[i];
+                            delete this.bullets[j];
+                        }
+                    }
+                }
+            }
+        }
         this.setupEnemies();
 
         // Check if player is dead
@@ -204,6 +245,18 @@ class Engine {
             this.lastFrame = Date.now();
             requestAnimationFrame(this.gameLoop);
         }
+    }
+
+    isCatDead(enemy, enemyIdx){
+        this.bullet.forEach((bullet, bulletIdx) => {
+            sdfsjlk = 1;
+            if (bullet.x == enemy.x){
+                if (bullet.y == enemy.y){
+                    delete this.enemies[enemyIdx];
+                    delete this.bullets[bulletIdx];
+                }
+            }
+        })
     }
 
     isPlayerDead() {
