@@ -26,6 +26,23 @@ var images = {};
     console.log("here");
 });
 
+// Credits: https://gist.github.com/chriskoch/366054
+function drawString(ctx, text, posX, posY, textColor, rotation, font, fontSize) {
+	var lines = text.split("\n");
+	if (!rotation) rotation = 0;
+	if (!font) font = "'serif'";
+	if (!fontSize) fontSize = 16;
+	if (!textColor) textColor = '#FFFFFF';
+	ctx.save();
+	ctx.font = fontSize + "px " + font;
+	ctx.fillStyle = textColor;
+	ctx.translate(posX, posY);
+	ctx.rotate(rotation * Math.PI / 180);
+	for (i = 0; i < lines.length; i++) {
+ 		ctx.fillText(lines[i],0, i*fontSize);
+	}
+	ctx.restore();
+}
 
 class Entity {
     render(ctx) {
@@ -88,10 +105,6 @@ class Bullet extends Entity{
 }
 
 
-
-
-
-
 /*
 This section is a tiny game engine.
 This engine will use your Enemy and Player classes to create the behavior of the game.
@@ -152,6 +165,7 @@ class Engine {
     // This method kicks off the game
     start() {
         this.score = 0;
+        this.high_score = 0;
         this.lastFrame = Date.now();
 
         // Listen for keyboard left/right and update the player
@@ -191,9 +205,6 @@ class Engine {
         var currentFrame = Date.now();
         var timeDiff = currentFrame - this.lastFrame;
 
-        // Increase the score!
-        this.score += timeDiff;
-
         // Call update on all enemies
         this.enemies.forEach(enemy => enemy.update(timeDiff));
         this.bullets.forEach(bullet => bullet.update(timeDiff)); // draw the bullets
@@ -220,6 +231,7 @@ class Engine {
                         if (this.bullets[j].y <= this.enemies[i].y+ENEMY_HEIGHT && this.bullets[j].y+PLAYER_HEIGHT >= this.enemies[i].y){
                             delete this.enemies[i];
                             delete this.bullets[j];
+                            this.score += 1;
                         }
                     }
                 }
@@ -232,14 +244,18 @@ class Engine {
             // If they are dead, then it's game over!
             this.ctx.font = 'bold 30px Impact';
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText(this.score + ' GAME OVER', 5, 30);
-
+            drawString(this.ctx, "GAME OVER", 230, 250, 0, 'bold Impact white', 30);
+            drawString(this.ctx, "Cats Purged: " + this.score, 210, 300, 0, 'bold Impact white', 30);
+            drawString(this.ctx, "Record Cats: " + this.high_score, 210, 350, 0, 'bold Impact white', 30);
+            drawString(this.ctx, "Press Enter to Restart", 160, 400, 0, 'bold Impact white', 30);
+            this.score > this.high_score ? this.high_score = this.score : this.high_score = this.high_score;
         }
         else {
             // If player is not dead, then draw the score
             this.ctx.font = 'bold 30px Impact';
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText(this.score, 5, 30);
+            drawString(this.ctx, "Cats Purged: " + this.score, 5, 30, 0, 'bold Impact white', 30);
+            drawString(this.ctx, "Record Cats: " + this.high_score, 5, 70, 0, 'bold Impact white', 30);
 
             // Set the time marker and redraw
             this.lastFrame = Date.now();
@@ -247,20 +263,8 @@ class Engine {
         }
     }
 
-    isCatDead(enemy, enemyIdx){
-        this.bullet.forEach((bullet, bulletIdx) => {
-            sdfsjlk = 1;
-            if (bullet.x == enemy.x){
-                if (bullet.y == enemy.y){
-                    delete this.enemies[enemyIdx];
-                    delete this.bullets[bulletIdx];
-                }
-            }
-        })
-    }
-
     isPlayerDead() {
-        // TODO: fix this function!
+        // TODO: fix this function!: Fixed!
         var hit = false;
         this.enemies.forEach((enemy) => {
             if (enemy.y + ENEMY_HEIGHT - 5 >= this.player.y && enemy.y + 10 < this.player.y + PLAYER_HEIGHT) {
