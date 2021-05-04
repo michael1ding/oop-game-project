@@ -149,7 +149,7 @@ class Engine {
                 this.gameLoop();
             }
         });
-
+                
         this.gameLoop();
     }
 
