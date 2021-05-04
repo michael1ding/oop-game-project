@@ -26,11 +26,16 @@ var images = {};
 });
 
 
+class Entity {
+    render(ctx) {
+        ctx.drawImage(this.sprite, this.x, this.y);
+    }
+}
 
 
-
-class Enemy {
+class Enemy extends Entity{
     constructor(xPos) {
+        super();
         this.x = xPos;
         this.y = -ENEMY_HEIGHT;
         this.sprite = images['enemy.png'];
@@ -43,13 +48,11 @@ class Enemy {
         this.y = this.y + timeDiff * this.speed;
     }
 
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
-    }
 }
 
-class Player {
+class Player extends Entity{
     constructor() {
+        super();
         this.x = 2 * PLAYER_WIDTH;
         this.y = GAME_HEIGHT - PLAYER_HEIGHT - 10;
         this.sprite = images['player.png'];
@@ -65,9 +68,6 @@ class Player {
         }
     }
 
-    render(ctx) {
-        ctx.drawImage(this.sprite, this.x, this.y);
-    }
 }
 
 
@@ -119,7 +119,7 @@ class Engine {
 
         var enemySpot;
         // Keep looping until we find a free enemy spot at random
-        while (!enemySpot || this.enemies[enemySpot]) {
+        while (this.enemies[enemySpot]) { //remove !enemySpot || 
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
 
@@ -199,7 +199,16 @@ class Engine {
 
     isPlayerDead() {
         // TODO: fix this function!
-        return false;
+        var hit = false;
+        this.enemies.forEach((enemy) => {
+            if (enemy.y+ENEMY_HEIGHT-5 >= this.player.y && enemy.y+10 < this.player.y+PLAYER_HEIGHT){
+                if (enemy.x == this.player.x){
+                    hit = true;
+                }
+            }
+        });
+
+        return hit;
     }
 }
 
