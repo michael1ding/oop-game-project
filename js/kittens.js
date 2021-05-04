@@ -138,9 +138,17 @@ class Engine {
             }
             else if (e.keyCode === RIGHT_ARROW_CODE) {
                 this.player.move(MOVE_RIGHT);
+            } else if (e.keyCode === 32) {
+                this.player = new Player();
+
+                // Setup enemies, making sure there are always three
+                this.enemies = [];
+                this.score = 0;
+                this.lastFrame = Date.now();
+                this.gameLoop();
             }
         });
-
+                
         this.gameLoop();
     }
 
@@ -184,6 +192,7 @@ class Engine {
             this.ctx.font = 'bold 30px Impact';
             this.ctx.fillStyle = '#ffffff';
             this.ctx.fillText(this.score + ' GAME OVER', 5, 30);
+
         }
         else {
             // If player is not dead, then draw the score
