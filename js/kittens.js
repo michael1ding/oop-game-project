@@ -1,10 +1,10 @@
 // This section contains some game constants
-var GAME_WIDTH = 375;
-var GAME_HEIGHT = 500;
+var GAME_WIDTH = 600;
+var GAME_HEIGHT = 600;
 
 var ENEMY_WIDTH = 75;
 var ENEMY_HEIGHT = 156;
-var MAX_ENEMIES = 3;
+var MAX_ENEMIES = 6;
 
 var PLAYER_WIDTH = 75;
 var PLAYER_HEIGHT = 54;
@@ -23,6 +23,7 @@ var images = {};
     var img = document.createElement('img');
     img.src = 'images/' + imgName;
     images[imgName] = img;
+    console.log("here");
 });
 
 
@@ -33,7 +34,7 @@ class Entity {
 }
 
 
-class Enemy extends Entity{
+class Enemy extends Entity {
     constructor(xPos) {
         super();
         this.x = xPos;
@@ -41,7 +42,7 @@ class Enemy extends Entity{
         this.sprite = images['enemy.png'];
 
         // Each enemy should have a different speed
-        this.speed = Math.random() / 2 + 0.25;
+        this.speed = (Math.random() / 2 + 0.25) * 1.35;
     }
 
     update(timeDiff) {
@@ -50,7 +51,7 @@ class Enemy extends Entity{
 
 }
 
-class Player extends Entity{
+class Player extends Entity {
     constructor() {
         super();
         this.x = 2 * PLAYER_WIDTH;
@@ -119,10 +120,10 @@ class Engine {
 
         var enemySpot;
         // Keep looping until we find a free enemy spot at random
-        while (this.enemies[enemySpot]) { //remove !enemySpot || 
+        while (this.enemies[enemySpot]) { //remove !enemySpot ||
+            console.log("here");
             enemySpot = Math.floor(Math.random() * enemySpots);
         }
-
         this.enemies[enemySpot] = new Enemy(enemySpot * ENEMY_WIDTH);
     }
 
@@ -138,6 +139,14 @@ class Engine {
             }
             else if (e.keyCode === RIGHT_ARROW_CODE) {
                 this.player.move(MOVE_RIGHT);
+            } else if (e.keyCode === 32) {
+                this.player = new Player();
+
+                // Setup enemies, making sure there are always three
+                this.enemies = [];
+                this.score = 0;
+                this.lastFrame = Date.now();
+                this.gameLoop();
             }
         });
 
@@ -149,7 +158,6 @@ class Engine {
     During each execution of the function, we will update the positions of all game entities
     It's also at this point that we will check for any collisions between the game entities
     Collisions will often indicate either a player death or an enemy kill
-
     In order to allow the game objects to self-determine their behaviors, gameLoop will call the `update` method of each entity
     To account for the fact that we don't always have 60 frames per second, gameLoop will send a time delta argument to `update`
     You should use this parameter to scale your update appropriately
@@ -184,6 +192,7 @@ class Engine {
             this.ctx.font = 'bold 30px Impact';
             this.ctx.fillStyle = '#ffffff';
             this.ctx.fillText(this.score + ' GAME OVER', 5, 30);
+
         }
         else {
             // If player is not dead, then draw the score
@@ -201,8 +210,8 @@ class Engine {
         // TODO: fix this function!
         var hit = false;
         this.enemies.forEach((enemy) => {
-            if (enemy.y+ENEMY_HEIGHT-5 >= this.player.y && enemy.y+10 < this.player.y+PLAYER_HEIGHT){
-                if (enemy.x == this.player.x){
+            if (enemy.y + ENEMY_HEIGHT - 5 >= this.player.y && enemy.y + 10 < this.player.y + PLAYER_HEIGHT) {
+                if (enemy.x == this.player.x) {
                     hit = true;
                 }
             }
