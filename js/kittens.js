@@ -8,6 +8,7 @@ var MAX_ENEMIES = 6;
 
 var PLAYER_WIDTH = 75;
 var PLAYER_HEIGHT = 54;
+var SPEED_SCALE = 1;
 
 // These two constants keep us from using "magic numbers" in our code
 var LEFT_ARROW_CODE = 37;
@@ -59,7 +60,7 @@ class Enemy extends Entity {
         this.sprite = images['enemy.png'];
 
         // Each enemy should have a different speed
-        this.speed = (Math.random() / 2 + 0.25) * 1.35;
+        this.speed = (Math.random() / 2 + 0.25) * SPEED_SCALE;
     }
 
     update(timeDiff) {
@@ -204,6 +205,7 @@ class Engine {
         // Check how long it's been since last frame
         var currentFrame = Date.now();
         var timeDiff = currentFrame - this.lastFrame;
+        SPEED_SCALE = Math.pow(2, 0.08 * timeDiff); 
 
         // Call update on all enemies
         this.enemies.forEach(enemy => enemy.update(timeDiff));
